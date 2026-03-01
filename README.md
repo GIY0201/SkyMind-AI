@@ -2,7 +2,7 @@
 
 실제 항공 ATC(Air Traffic Control) 개념을 드론 스케일로 구현한 AI 기반 UTM(UAV Traffic Management) 시스템입니다. 다수 드론의 항로를 자동 생성하고, 충돌 감지 및 회피, 기상 대응, 비상 처리까지 실시간으로 수행합니다.
 
-
+<img width="3839" height="1906" alt="Image" src="https://github.com/user-attachments/assets/aa7bf8c9-969a-443f-b6ee-6ef56d53d9a9" />
 
 ## 주요 기능
 
