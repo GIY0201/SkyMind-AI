@@ -7,8 +7,9 @@ const SEOUL_LON = 126.978;
 
 function WeatherOverlay() {
   const weather = useDroneState((s) => s.weather);
+  const visible = useDroneState((s) => s.layerVisibility.weatherOverlay);
 
-  if (!weather) return null;
+  if (!visible || !weather) return null;
 
   // Wind direction arrow entity (placed at Seoul center, elevated)
   const windDeg = weather.wind_deg;

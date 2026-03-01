@@ -10,9 +10,21 @@ from api.websocket import telemetry
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     # Startup — 테이블 자동 생성 (마이그레이션 파일 없을 때 대비)
-    from db.database import engine, Base
+    from db.database import engine, Base, SessionLocal
     import db.orm_models  # noqa: F401
     Base.metadata.create_all(bind=engine)
+
+    # 공역 데이터 자동 시드 — 테이블이 비어있으면 한국 공역 데이터 삽입
+    from db.crud import bulk_create_airspace_zones
+    from core.airspace.manager import create_korean_airspace_zones
+    db = SessionLocal()
+    try:
+        count = bulk_create_airspace_zones(db, create_korean_airspace_zones())
+        if count > 0:
+            print(f"[SkyMind] 한국 공역 데이터 {count}개 자동 시드 완료")
+    finally:
+        db.close()
+
     yield
     # Shutdown
 

@@ -2,6 +2,7 @@ import CesiumViewer from "./components/CesiumViewer";
 import SimulationPanel from "./components/SimulationPanel";
 import Dashboard from "./components/Dashboard";
 import ChatPanel from "./components/ChatPanel";
+import MapLayerControl from "./components/MapLayerControl";
 
 function App() {
   return (
@@ -13,6 +14,7 @@ function App() {
         <CesiumViewer />
         <SimulationPanel />
         <Dashboard />
+        <MapLayerControl />
         <ChatPanel />
       </main>
     </div>

@@ -5,6 +5,7 @@ import RouteRenderer from "./RouteRenderer";
 import WeatherOverlay from "./WeatherOverlay";
 import LandingZoneRenderer from "./LandingZoneRenderer";
 import AirspaceLayer from "./AirspaceLayer";
+import MapControls from "./MapControls";
 
 Ion.defaultAccessToken = import.meta.env.VITE_CESIUM_ION_TOKEN ?? "";
 
@@ -35,6 +36,7 @@ function CesiumViewer() {
       <RouteRenderer />
       <WeatherOverlay />
       <LandingZoneRenderer />
+      <MapControls />
     </Viewer>
   );
 }

@@ -7,24 +7,45 @@ import {
   HorizontalOrigin,
   Cartesian2,
 } from "cesium";
+import { useDroneState } from "../hooks/useDroneState";
 import type { AirspaceZone, ZoneType } from "../types";
 
-/** zone_type별 폴리곤 색상 */
-function zoneColor(type: ZoneType): { fill: Color; outline: Color } {
+/** 고도별 색상 블렌딩 (높을수록 빨간 tint) */
+function altitudeColor(ceilingM: number): Color {
+  if (ceilingM >= 300) return new Color(1.0, 0.2, 0.2, 1);  // 빨강
+  if (ceilingM >= 200) return new Color(1.0, 0.6, 0.2, 1);  // 주황
+  if (ceilingM >= 100) return new Color(1.0, 1.0, 0.3, 1);  // 노랑
+  return new Color(0.3, 1.0, 0.3, 1);                       // 초록
+}
+
+/** zone_type별 폴리곤 색상 (고도 반영) */
+function zoneColor(type: ZoneType, ceilingM: number = 400): { fill: Color; outline: Color } {
+  const altC = altitudeColor(ceilingM);
+
   switch (type) {
     case "RESTRICTED":
       return {
-        fill: Color.RED.withAlpha(0.2),
-        outline: Color.RED.withAlpha(0.8),
+        fill: Color.RED.withAlpha(0.25),
+        outline: Color.RED.withAlpha(0.9),
       };
     case "CONTROLLED":
       return {
-        fill: Color.YELLOW.withAlpha(0.12),
+        fill: new Color(
+          (Color.YELLOW.red + altC.red) / 2,
+          (Color.YELLOW.green + altC.green) / 2,
+          (Color.YELLOW.blue + altC.blue) / 2,
+          0.15,
+        ),
         outline: Color.YELLOW.withAlpha(0.7),
       };
     case "FREE":
       return {
-        fill: Color.GREEN.withAlpha(0.08),
+        fill: new Color(
+          (Color.GREEN.red + altC.red) / 2,
+          (Color.GREEN.green + altC.green) / 2,
+          (Color.GREEN.blue + altC.blue) / 2,
+          0.1,
+        ),
         outline: Color.GREEN.withAlpha(0.5),
       };
     case "EMERGENCY_ONLY":
@@ -86,6 +107,7 @@ function toPositions(
 
 function AirspaceLayer() {
   const [zones, setZones] = useState<AirspaceZone[]>([]);
+  const layerVisibility = useDroneState((s) => s.layerVisibility);
 
   useEffect(() => {
     fetch("/api/airspaces/?active_only=false")
@@ -99,15 +121,23 @@ function AirspaceLayer() {
       .catch(() => {});
   }, []);
 
-  if (zones.length === 0) return null;
+  // 레이어 가시성에 따른 필터링
+  const visibleZones = zones.filter((z) => {
+    if (z.zone_type === "RESTRICTED") return layerVisibility.airspaceRestricted;
+    if (z.zone_type === "CONTROLLED") return layerVisibility.airspaceControlled;
+    if (z.zone_type === "FREE") return layerVisibility.airspaceFree;
+    return true;
+  });
+
+  if (visibleZones.length === 0) return null;
 
   return (
     <>
-      {zones.map((zone) => {
+      {visibleZones.map((zone) => {
         const coords = zone.geometry?.coordinates?.[0];
         if (!coords || coords.length < 3) return null;
 
-        const colors = zoneColor(zone.zone_type);
+        const colors = zoneColor(zone.zone_type, zone.ceiling_altitude_m);
 
         return (
           <Entity key={zone.zone_id}>
@@ -119,16 +149,18 @@ function AirspaceLayer() {
               outlineWidth={2}
               height={zone.floor_altitude_m}
               extrudedHeight={zone.ceiling_altitude_m}
+              closeTop
+              closeBottom
             />
           </Entity>
         );
       })}
       {/* 구역 라벨 (별도 Entity — position 필요) */}
-      {zones.map((zone) => {
+      {visibleZones.map((zone) => {
         const coords = zone.geometry?.coordinates?.[0];
         if (!coords || coords.length < 3) return null;
 
-        const colors = zoneColor(zone.zone_type);
+        const colors = zoneColor(zone.zone_type, zone.ceiling_altitude_m);
         const center = polygonCenter(coords);
         const midAlt =
           (zone.floor_altitude_m + zone.ceiling_altitude_m) / 2;

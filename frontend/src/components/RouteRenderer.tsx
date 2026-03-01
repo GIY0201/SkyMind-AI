@@ -16,6 +16,9 @@ function RouteRenderer() {
   const trails = useDroneState((s) => s.trails);
   const plannedWaypoints = useDroneState((s) => s.plannedWaypoints);
   const plannedRoutes = useDroneState((s) => s.plannedRoutes);
+  const visible = useDroneState((s) => s.layerVisibility.flightTrails);
+
+  if (!visible) return null;
 
   const trailEntries = Array.from(trails.entries());
   const routeEntries = Array.from(plannedRoutes.entries());

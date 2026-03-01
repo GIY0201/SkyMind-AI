@@ -47,6 +47,16 @@ interface DroneState {
   chatSessionId: string;
   /** 성능 메트릭 */
   metrics: MetricsSummary | null;
+  /** 맵 레이어 가시성 */
+  layerVisibility: {
+    airspaceRestricted: boolean;
+    airspaceControlled: boolean;
+    airspaceFree: boolean;
+    droneMarkers: boolean;
+    flightTrails: boolean;
+    weatherOverlay: boolean;
+    landingZones: boolean;
+  };
 
   updateTelemetry: (telemetry: Telemetry) => void;
   setDrones: (drones: Drone[]) => void;
@@ -65,6 +75,7 @@ interface DroneState {
   setChatLoading: (loading: boolean) => void;
   clearChat: () => void;
   setMetrics: (metrics: MetricsSummary) => void;
+  setLayerVisibility: (layer: string, visible: boolean) => void;
   clearAll: () => void;
 }
 
@@ -85,6 +96,15 @@ export const useDroneState = create<DroneState>((set) => ({
   chatLoading: false,
   chatSessionId: `session-${Date.now()}`,
   metrics: null,
+  layerVisibility: {
+    airspaceRestricted: true,
+    airspaceControlled: true,
+    airspaceFree: true,
+    droneMarkers: true,
+    flightTrails: true,
+    weatherOverlay: true,
+    landingZones: true,
+  },
 
   updateTelemetry: (telemetry) =>
     set((state) => {
@@ -165,6 +185,11 @@ export const useDroneState = create<DroneState>((set) => ({
     set({ chatMessages: [], chatSessionId: `session-${Date.now()}` }),
 
   setMetrics: (metrics) => set({ metrics }),
+
+  setLayerVisibility: (layer, visible) =>
+    set((state) => ({
+      layerVisibility: { ...state.layerVisibility, [layer]: visible },
+    })),
 
   clearAll: () =>
     set({

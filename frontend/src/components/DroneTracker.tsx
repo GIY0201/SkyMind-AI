@@ -34,6 +34,9 @@ function speed(drone: Drone): number {
 /** Zustand 스토어의 드론 위치를 Cesium Entity로 렌더링한다. */
 function DroneTracker() {
   const drones = useDroneState((s) => s.drones);
+  const visible = useDroneState((s) => s.layerVisibility.droneMarkers);
+
+  if (!visible) return null;
 
   const entries = Array.from(drones.values());
 

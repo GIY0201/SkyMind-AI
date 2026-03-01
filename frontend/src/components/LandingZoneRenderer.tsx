@@ -15,6 +15,9 @@ const DEFAULT_LANDING_ZONES = [
 function LandingZoneRenderer() {
   const storeZones = useDroneState((s) => s.landingZones);
   const alerts = useDroneState((s) => s.emergencyAlerts);
+  const visible = useDroneState((s) => s.layerVisibility.landingZones);
+
+  if (!visible) return null;
 
   // Use store zones if available, otherwise default
   const zones = storeZones.length > 0 ? storeZones : DEFAULT_LANDING_ZONES;

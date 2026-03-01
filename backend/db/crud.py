@@ -315,6 +315,36 @@ def update_airspace_zone_active(db: Session, zone_id: str, active: bool) -> Airs
     return _airspace_orm_to_pydantic(orm)
 
 
+def bulk_create_airspace_zones(db: Session, zones: list[AirspaceZone]) -> int:
+    """공역 구역 일괄 생성 (zone_id 중복 무시).
+
+    Returns:
+        새로 삽입된 구역 수.
+    """
+    existing_ids = {
+        row.zone_id for row in db.query(AirspaceZoneORM.zone_id).all()
+    }
+    count = 0
+    for zone in zones:
+        if zone.zone_id in existing_ids:
+            continue
+        orm = AirspaceZoneORM(
+            zone_id=zone.zone_id,
+            name=zone.name,
+            zone_type=zone.zone_type.value if hasattr(zone.zone_type, 'value') else zone.zone_type,
+            geometry=zone.geometry,
+            floor_altitude_m=zone.floor_altitude_m,
+            ceiling_altitude_m=zone.ceiling_altitude_m,
+            active=zone.active,
+            restrictions=zone.restrictions,
+        )
+        db.add(orm)
+        count += 1
+    if count > 0:
+        db.commit()
+    return count
+
+
 def delete_airspace_zone(db: Session, zone_id: str) -> bool:
     """공역 구역 삭제."""
     orm = db.query(AirspaceZoneORM).filter(AirspaceZoneORM.zone_id == zone_id).first()
