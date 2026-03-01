@@ -26,7 +26,26 @@
       "Bash(conda install:*)",
       "Bash(/tmp/tree_output.txt:*)",
       "Bash(npm run:*)",
-      "Bash(git add:*)"
+      "Bash(git add:*)",
+      "Bash(git commit:*)",
+      "Bash(git config:*)",
+      "Bash(git remote:*)",
+      "Bash(git push:*)",
+      "Bash(lsof:*)",
+      "Bash(ss:*)",
+      "Bash(curl:*)",
+      "Bash(docker-compose up:*)",
+      "Bash(docker:*)",
+      "Bash(pg_isready:*)",
+      "Bash(docker-compose version:*)",
+      "Bash(sudo docker:*)",
+      "Bash(npm:*)",
+      "WebSearch",
+      "WebFetch(domain:www.data.go.kr)",
+      "WebFetch(domain:www.gimi9.com)",
+      "WebFetch(domain:drone.onestop.go.kr)",
+      "WebFetch(domain:aim.koca.go.kr)",
+      "Bash(git pull:*)"
     ]
   }
 }
